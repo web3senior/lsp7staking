@@ -1,0 +1,18 @@
+<svg width="672" height="773" viewBox="0 0 672 773" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="672" height="773" rx="30" fill="white"/>
+<rect width="672" height="773" rx="30" fill="url(#pattern0_10882_3507)"/>
+<rect width="672" height="773" rx="30" fill="url(#paint0_radial_10882_3507)"/>
+<defs>
+<radialGradient id="paint0_radial_10882_3507" cx="0" cy="0" r="1" gradientTransform="matrix(0 1184 -828.8 230.633 336 387)" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<pattern id="pattern0_10882_3507" patternUnits="userSpaceOnUse" patternTransform="matrix(54 0 0 92 309 363.5)" preserveAspectRatio="none" viewBox="0 0 54 92" width="1" height="1">
+<use xlink:href="#pattern0_10882_3507_inner" transform="translate(-54 0)"/>
+<g id="pattern0_10882_3507_inner">
+<rect x="0.5" y="0.5" width="53" height="45" stroke="#E0E0E0"/>
+</g>
+<use xlink:href="#pattern0_10882_3507_inner" transform="translate(-27 46)"/>
+<use xlink:href="#pattern0_10882_3507_inner" transform="translate(27 46)"/>
+</pattern></defs>
+</svg>

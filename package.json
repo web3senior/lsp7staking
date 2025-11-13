@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@lukso/up-provider": "^0.3.5",
+    "moment": "^2.30.1",
+    "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "next": "16.0.1"
+    "react-hot-toast": "^2.6.0",
+    "sass": "^1.93.3",
+    "viem": "^2.38.6",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "eslint": "^9",
