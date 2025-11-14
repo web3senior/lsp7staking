@@ -35,8 +35,8 @@ contract BanditStakingPool is Ownable, Pausable, ReentrancyGuard {
     // Staking limits and cooldown
     // 5,000,000 BANDIT limit (assuming 18 decimals for BANDIT)
     uint256 public constant MAX_STAKE_LIMIT = 5_000_000 ether;
-    // 7 days cooldown (7 * 24 * 60 * 60)
-    uint256 public constant COOLDOWN_PERIOD = 604800;
+    // 7 days cooldown (7 * 24 * 60 * 60) = 604800
+    uint256 public constant COOLDOWN_PERIOD = 7 minutes;
 
     // Total staked $BANDIT in the pool
     uint256 public totalStaked;
