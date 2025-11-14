@@ -314,11 +314,11 @@ export default function Page() {
               {activeTab === `stake` && (
                 <>
                   {!isApproved ? (
-                    <button className={`btn mt-20`} style={{ background: `var(--blue-light-600)` }} disabled={!auth.walletConnected} onClick={(e) => handleApprove(e)}>
+                    <button className={`btn mt-20`} style={{ background: `var(--blue-light-600)` }} disabled={!auth.walletConnected || totalStaked>=5_000_000} onClick={(e) => handleApprove(e)}>
                       Approve
                     </button>
                   ) : (
-                    <button className={`btn mt-20`} disabled={!auth.walletConnected} onClick={(e) => handleStake(e)}>
+                    <button className={`btn mt-20`} disabled={!auth.walletConnected || totalStaked>=5_000_000} onClick={(e) => handleStake(e)}>
                       Stake
                     </button>
                   )}
