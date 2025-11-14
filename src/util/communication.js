@@ -67,6 +67,20 @@ export async function getBalanceOfBandit(addr) {
   }
 }
 
+export async function getRewardPool() {
+  const { web3, contract } = initStakingContract()
+
+  try {
+    const result = await contract.methods.getRewardPoolBalances().call()
+    return result
+  } catch (error) {
+    console.error('Error fetching contract data with Web3.js:', error)
+    return { error }
+  }
+}
+
+
+
 export async function getStakedBalance(addr) {
   const { web3, contract } = initStakingContract()
 

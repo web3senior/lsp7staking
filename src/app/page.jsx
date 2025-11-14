@@ -3,7 +3,7 @@
 import { useState, useEffect, useId, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { initStakingContract, initBanditContract, initFabsContract, getTotalStaked, getPendingRewards, getBalanceOfBandit, getStakedBalance, getTotalDailyRewards } from '@/util/communication'
+import { initStakingContract, initBanditContract, initFabsContract, getTotalStaked, getPendingRewards, getBalanceOfBandit, getStakedBalance, getTotalDailyRewards, getBanditRewardPool, getFabsRewardPool, getRewardPool } from '@/util/communication'
 import { toast } from 'react-hot-toast'
 import DefaultPFP from '@/../public/default-pfp.svg'
 import Web3 from 'web3'
@@ -16,31 +16,13 @@ import { useUpProvider } from '@/contexts/UpProvider'
 import styles from './Page.module.scss'
 import Shimmer from '@/helper/Shimmer'
 
-moment.defineLocale('en-short', {
-  relativeTime: {
-    future: 'in %s',
-    past: '%s', //'%s ago'
-    s: '1s',
-    ss: '%ds',
-    m: '1m',
-    mm: '%dm',
-    h: '1h',
-    hh: '%dh',
-    d: '1d',
-    dd: '%dd',
-    M: '1mo',
-    MM: '%dmo',
-    y: '1y',
-    yy: '%dy',
-  },
-})
-
 export default function Page() {
   const [activeTab, setActiveTab] = useState('stake')
   const [rewardsModal, setRewardsModasl] = useState(false)
   const [totalStaked, setTotalStaked] = useState(0)
   const [isApproved, setIsApproved] = useState(false)
   const [totalDailyRewards, setTotalDailyRewards] = useState(0)
+  const [rewardPool, setRewardPool] = useState(0)
   const { web3, contract } = initStakingContract()
   const auth = useUpProvider()
 
@@ -131,9 +113,38 @@ export default function Page() {
           toast.success(`Done`)
           toast.dismiss(t)
 
-          party.confetti(document.body, {
-            count: party.variation.range(20, 40),
-          })
+          window.location.reload()
+        })
+        .catch((error) => {
+          toast.dismiss(t)
+        })
+    } catch (error) {
+      console.log(error)
+      toast.dismiss(t)
+    }
+  }
+
+  const handleUnstake = (e) => {
+    const t = toast.loading(`Waiting for transaction's confirmation`)
+
+    try {
+      // window.lukso.request({ method: 'eth_requestAccounts' }).then((accounts) => {})
+      const web3 = new Web3(auth.provider)
+
+      const amount = document.querySelector(`input[name="amount"]`).value
+
+      // Create a Contract instance
+      const contract = new web3.eth.Contract(ABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT)
+      contract.methods
+        .requestUnstake(web3.utils.toWei(amount, `ether`))
+        .send({ from: auth.accounts[0] })
+        .then((res) => {
+          console.log(res)
+
+          toast.success(`Done`)
+          toast.dismiss(t)
+
+          window.location.reload()
         })
         .catch((error) => {
           toast.dismiss(t)
@@ -152,6 +163,11 @@ export default function Page() {
     getTotalDailyRewards().then((result) => {
       console.log(result)
       setTotalDailyRewards(result)
+    })
+
+    getRewardPool().then((result) => {
+      console.log(result)
+      setRewardPool(result)
     })
   }, [])
 
@@ -263,7 +279,7 @@ export default function Page() {
               <div className={`mt-20`}>
                 <div className={`flex flex-row align-items-center justify-content-between`}>
                   <h3>Pool Capacity</h3>
-                  <h3 style={{ color: `var(--color-primary)` }}>{(totalStaked / 5000000) * 100}% Full</h3>
+                  <h3 style={{ color: `var(--color-primary)` }}>{parseFloat((totalStaked / 5000000) * 100).toFixed(2)}% Full</h3>
                 </div>
 
                 <progress value={totalStaked} min={0} max={5000000} />
@@ -281,6 +297,20 @@ export default function Page() {
 
           <div className={`card w-100`}>
             <div className={`card__body`}>
+              <ul className={`flex flex-row align-items-center justify-content-between w-100 mb-10`}>
+                <li className={`flex flex-column align-items-start`}>
+                  <b>{rewardPool ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(rewardPool.banditRewardReserve), `ether`)).toFixed(2)) : 0} $BANDIT</b>
+                  <span style={{ color: `var(--gray-600)` }}>Bandit Reward Pool</span>
+                </li>
+                <li>
+                  <span className={`${styles.divider}`}></span>
+                </li>
+                <li className={`flex flex-column align-items-start`}>
+                  <b>{rewardPool ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(rewardPool.fabsRewardReserve), `ether`)).toFixed(2)) : 0} $FABS</b>
+                  <span style={{ color: `var(--gray-600)` }}>Fabs Reward Pool</span>
+                </li>
+              </ul>
+
               <InputBox activeTab={activeTab} />
 
               {activeTab === `stake` && (
@@ -299,8 +329,8 @@ export default function Page() {
 
               {activeTab === `unstake` && (
                 <>
-                  <button className={`btn mt-20`} disabled={!auth.walletConnected} onClick={(e) => handleStake(e)}>
-                    Untake
+                  <button className={`btn mt-20`} disabled={!auth.walletConnected} onClick={(e) => handleUnstake(e)}>
+                    Request Untake
                   </button>
                 </>
               )}
@@ -327,6 +357,41 @@ const InputBox = ({ activeTab }) => {
   const auth = useUpProvider()
   const inputRef = useRef()
 
+  const handleWithdrawStaked = (e) => {
+    try {
+      // window.lukso.request({ method: 'eth_requestAccounts' }).then((accounts) => {})
+      const web3 = new Web3(auth.provider)
+
+      const amount = document.querySelector(`input[name="amount"]`).value
+
+      if (amount === 0 || amount === '') {
+        toast.error(`Please add amount`)
+        return
+      }
+
+      const t = toast.loading(`Waiting for transaction's confirmation`)
+      // Create a Contract instance
+      const contract = new web3.eth.Contract(ABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT)
+      contract.methods
+        .withdrawStaked(web3.utils.toWei(amount, `ether`))
+        .send({ from: auth.accounts[0] })
+        .then((res) => {
+          console.log(res)
+
+          toast.success(`Done`)
+          toast.dismiss(t)
+
+          window.location.reload()
+        })
+        .catch((error) => {
+          toast.dismiss(t)
+        })
+    } catch (error) {
+      console.log(error)
+      toast.dismiss(t)
+    }
+  }
+
   useEffect(() => {
     if (auth.walletConnected) {
       getBalanceOfBandit(auth.accounts[0]).then((balance) => {
@@ -345,24 +410,41 @@ const InputBox = ({ activeTab }) => {
   }, [auth.walletConnected])
 
   return (
-    <div className={`flex flex-column align-items-start`}>
-      <div className={`${styles.inputBox} flex flex-row align-items-start`}>
-        <input ref={inputRef} name={`amount`} type="number" placeholder={`0.00`} />
-        <button
-          onClick={() => {
-            if (activeTab === `stake`) {
-              balance ? (inputRef.current.value = web3.utils.fromWei(balance, `ether`)) : 0
-            } else {
-              userInfo.stakedAmount ? (inputRef.current.value = web3.utils.fromWei(userInfo.stakedAmount, `ether`)) : 0
-            }
-          }}
-        >
-          MAX
-        </button>
+    <>
+      <div className={`flex flex-column align-items-start`}>
+        <div className={`${styles.inputBox} flex flex-row align-items-start`}>
+          <input ref={inputRef} name={`amount`} type="number" placeholder={`0.00`} />
+          <button
+            onClick={() => {
+              if (activeTab === `stake`) {
+                balance ? (inputRef.current.value = web3.utils.fromWei(balance, `ether`)) : 0
+              } else {
+                userInfo.stakedAmount ? (inputRef.current.value = web3.utils.fromWei(userInfo.stakedAmount, `ether`)) : 0
+              }
+            }}
+          >
+            MAX
+          </button>
+        </div>
+        <span>Available: {balance ? Intl.NumberFormat('en-US').format(web3.utils.fromWei(balance, `ether`)) : 0} $BANDIT</span>
+        <span>Staked Balance: {userInfo ? <span>{Intl.NumberFormat('en-US').format(web3.utils.fromWei(userInfo.stakedAmount, `ether`))}</span> : 0} $BANDIT</span>
       </div>
-      <span>Available: {balance ? Intl.NumberFormat('en-US').format(web3.utils.fromWei(balance, `ether`)) : 0} $BANDIT</span>
-      <span>Staked Balance: {userInfo ? <span>{Intl.NumberFormat('en-US').format(web3.utils.fromWei(userInfo.stakedAmount, `ether`))}</span> : 0} $BANDIT</span>
-    </div>
+      {activeTab === `unstake` && userInfo && userInfo.unstakeRequestAmount > 0 && (
+        <div className={`card mt-10`}>
+          <div className={`card__body`} style={{ background: `var(--gray-100)` }}>
+            <p className={``}>
+              Requested unstake amount: <b>{Intl.NumberFormat('en-US').format(web3.utils.fromWei(userInfo.unstakeRequestAmount, `ether`))} $BANDIT</b>
+              <br />
+              Unstake Available Time: <b>{moment.unix(web3.utils.toNumber(userInfo.unstakeAvailableTimestamp)).utc().fromNow()}</b>
+            </p>
+
+            <button className={`btn mt-20`} style={{ background: `var(--blue-light-400)` }} disabled={!auth.walletConnected} onClick={(e) => handleWithdrawStaked(e)}>
+              Withdraw Requested Unstake
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -465,6 +547,36 @@ const RewardsModal = ({ setRewardsModasl }) => {
     // Output for 10368 seconds: "2h 52m 48s"
   }
 
+  const claimRewards = (e) => {
+    const t = toast.loading(`Waiting for transaction's confirmation`)
+
+    try {
+      // window.lukso.request({ method: 'eth_requestAccounts' }).then((accounts) => {})
+      const web3 = new Web3(auth.provider)
+
+      const amount = document.querySelector(`input[name="amount"]`).value
+
+      // Create a Contract instance
+      const contract = new web3.eth.Contract(ABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT)
+      contract.methods
+        .stake(web3.utils.toWei(amount, `ether`))
+        .send({ from: auth.accounts[0] })
+        .then((res) => {
+          console.log(res)
+
+          toast.success(`Done`)
+          toast.dismiss(t)
+
+          window.location.reload()
+        })
+        .catch((error) => {
+          toast.dismiss(t)
+        })
+    } catch (error) {
+      console.log(error)
+      toast.dismiss(t)
+    }
+  }
   useEffect(() => {
     getPendingRewards(auth.accounts[0]).then((result) => {
       console.log(result)
@@ -558,6 +670,7 @@ const RewardsModal = ({ setRewardsModasl }) => {
               </div>
 
               <button
+                onClick={(e) => claimRewards(e)}
                 title={`Staking age: ${stakingAge(pendingRewards.timeElapsed)}`}
                 className={`flex align-items-center justify-content-center gap-050`}
                 style={{ borderRadius: `8px`, padding: `1rem`, background: `var(--color-primary)`, color: `var(--white)` }}
