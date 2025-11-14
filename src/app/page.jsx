@@ -263,16 +263,14 @@ export default function Page() {
                 </li>
                 <li className={`flex flex-column align-items-start`}>
                   <b>{totalDailyRewards ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(totalDailyRewards.totalBanditReward), `ether`)).toFixed(2)) : 0} $BANDIT</b>
-                  <b>{totalDailyRewards ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(totalDailyRewards.totalFabsReward), `ether`)).toFixed(2)) : 0} $FABS</b>
-                  <span style={{ color: `var(--gray-600)` }}>Daily Rewards</span>
+                  <span style={{ color: `var(--gray-600)` }}>BANDIT Daily Rewards</span>
                 </li>
                 <li>
                   <span className={`${styles.divider}`}></span>
                 </li>
                 <li className={`flex flex-column align-items-start`}>
-                  <b>{totalDailyRewards ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(totalDailyRewards.totalBanditReward) * 30, `ether`)).toFixed(2)) : 0} $BANDIT</b>
-                  <b>{totalDailyRewards ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(totalDailyRewards.totalFabsReward) * 30, `ether`)).toFixed(2)) : 0} $FABS</b>
-                  <span style={{ color: `var(--gray-600)` }}>Monthly Rewards</span>
+                  <b>{totalDailyRewards ? Intl.NumberFormat('en-US').format(parseFloat(Web3.utils.fromWei(Number(totalDailyRewards.totalFabsReward), `ether`)).toFixed(2)) : 0} $FABS</b>
+                  <span style={{ color: `var(--gray-600)` }}>FABS Daily Rewards</span>
                 </li>
               </ul>
 
