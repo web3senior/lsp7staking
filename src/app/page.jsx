@@ -559,7 +559,7 @@ const RewardsModal = ({ setRewardsModasl }) => {
       // Create a Contract instance
       const contract = new web3.eth.Contract(ABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT)
       contract.methods
-        .stake(web3.utils.toWei(amount, `ether`))
+        .claimRewards()
         .send({ from: auth.accounts[0] })
         .then((res) => {
           console.log(res)
