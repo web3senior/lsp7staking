@@ -360,18 +360,11 @@ const InputBox = ({ activeTab }) => {
       // window.lukso.request({ method: 'eth_requestAccounts' }).then((accounts) => {})
       const web3 = new Web3(auth.provider)
 
-      const amount = document.querySelector(`input[name="amount"]`).value
-
-      if (amount === 0 || amount === '') {
-        toast.error(`Please add amount`)
-        return
-      }
-
       const t = toast.loading(`Waiting for transaction's confirmation`)
       // Create a Contract instance
       const contract = new web3.eth.Contract(ABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT)
       contract.methods
-        .withdrawStaked(web3.utils.toWei(amount, `ether`))
+        .withdrawStaked()
         .send({ from: auth.accounts[0] })
         .then((res) => {
           console.log(res)
