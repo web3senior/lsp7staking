@@ -1,5 +1,32 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+# LSP7 Staking dapp
+🚀 Stake your $BANDIT now! 🚀
+First dApp built on LUKSO for staking LSP7!
+
+💰 Fixed APR: 42%
+
+🎯 Rewards split: 70% $BANDIT | 30% $FABS
+
+🏦 Max pool capacity: 5,000,000 $BANDIT
+
+🔥 Max rewards: 1,470,000 $BANDIT + 630,000 $FABS
+
+To stake, 2 transactions are required:
+
+1️⃣ authorizeOperator() → give the smart contract permission to transfer $BANDIT from your UP / Wallet
+
+2️⃣ stake() → deposit your $BANDIT
+
+💸 Each new stake automatically claims your rewards to your UP or Wallet.
+
+⚠️ Unstaking rules:
+
+7-day cooldown after initiating an unstake
+(Full withdrawal available after 7 days)
+Cannot initiate another unstake during cooldown
+Pending rewards for that amount stop accum
+
 ## Getting Started
 
 First, run the development server:
